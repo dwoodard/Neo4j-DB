@@ -18,6 +18,7 @@ class SeedNeo4j extends Command
                 $this->call('neo4j:maintenance', ['action' => 'reset']);
             } else {
                 $this->info('Seeding cancelled.');
+
                 return 1;
             }
         }
@@ -25,7 +26,7 @@ class SeedNeo4j extends Command
         $this->info('🚀 Starting Neo4j database seeding...');
         $this->line('');
 
-        $seeder = new Neo4jSeeder();
+        $seeder = new Neo4jSeeder;
         $seeder->setCommand($this);
         $seeder->run();
 

@@ -4,16 +4,18 @@ namespace Database\Factories;
 
 use App\Services\Neo4jService;
 use Faker\Factory as FakerFactory;
-use Faker\Generator as Faker;
 
 class Neo4jPersonFactory
 {
     protected $neo4j;
+
     protected $faker;
+
     protected $state = [];
+
     protected $count = 1;
 
-    public function __construct(Neo4jService $neo4j = null)
+    public function __construct(?Neo4jService $neo4j = null)
     {
         $this->neo4j = $neo4j ?: app(Neo4jService::class);
         $this->faker = FakerFactory::create();
@@ -42,7 +44,7 @@ class Neo4jPersonFactory
     public function create(array $attributes = []): array
     {
         $data = array_merge($this->definition(), $this->state, $attributes);
-        
+
         $query = '
             CREATE (p:Person {
                 name: $name,
@@ -74,13 +76,14 @@ class Neo4jPersonFactory
     public function state(array $state): self
     {
         $this->state = array_merge($this->state, $state);
+
         return $this;
     }
 
     /**
      * Create a person with specific occupation
      */
-    public function withOccupation(string $occupation, string $company = null): self
+    public function withOccupation(string $occupation, ?string $company = null): self
     {
         return $this->state([
             'occupation' => $occupation,
@@ -149,7 +152,7 @@ class Neo4jPersonFactory
             'Backend Developer',
             'Full Stack Developer',
             'Systems Administrator',
-            'Security Engineer'
+            'Security Engineer',
         ];
 
         $techCompanies = [
@@ -162,7 +165,7 @@ class Neo4jPersonFactory
             'ByteBuilders',
             'WebWorks Ltd.',
             'AI Innovations',
-            'CyberSolutions'
+            'CyberSolutions',
         ];
 
         return $this->state([
@@ -186,7 +189,7 @@ class Neo4jPersonFactory
             'HR Manager',
             'Account Executive',
             'Business Development Manager',
-            'Strategy Consultant'
+            'Strategy Consultant',
         ];
 
         return $this->state([

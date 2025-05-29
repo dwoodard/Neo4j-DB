@@ -4,17 +4,20 @@ namespace Database\Factories;
 
 use App\Services\Neo4jService;
 use Faker\Factory as FakerFactory;
-use Faker\Generator as Faker;
 
 class AdvancedNeo4jPersonFactory
 {
     protected $neo4j;
+
     protected $faker;
+
     protected $state = [];
+
     protected $count = 1;
+
     protected $validationRules = [];
 
-    public function __construct(Neo4jService $neo4j = null)
+    public function __construct(?Neo4jService $neo4j = null)
     {
         $this->neo4j = $neo4j ?: app(Neo4jService::class);
         $this->faker = FakerFactory::create();
@@ -45,7 +48,7 @@ class AdvancedNeo4jPersonFactory
     {
         $gender = $this->faker->randomElement(['male', 'female']);
         $age = $this->faker->numberBetween(18, 80);
-        
+
         return [
             'name' => $this->faker->name($gender),
             'email' => $this->faker->unique()->safeEmail(),
@@ -72,23 +75,23 @@ class AdvancedNeo4jPersonFactory
     {
         if ($age < 25) {
             return $this->faker->randomElement([
-                'Student', 'Intern', 'Junior Developer', 'Sales Associate', 
-                'Customer Service Rep', 'Barista', 'Retail Worker'
+                'Student', 'Intern', 'Junior Developer', 'Sales Associate',
+                'Customer Service Rep', 'Barista', 'Retail Worker',
             ]);
         } elseif ($age < 35) {
             return $this->faker->randomElement([
-                'Software Engineer', 'Marketing Specialist', 'Accountant', 
-                'Teacher', 'Nurse', 'Graphic Designer', 'Project Manager'
+                'Software Engineer', 'Marketing Specialist', 'Accountant',
+                'Teacher', 'Nurse', 'Graphic Designer', 'Project Manager',
             ]);
         } elseif ($age < 50) {
             return $this->faker->randomElement([
-                'Senior Developer', 'Marketing Manager', 'Operations Manager', 
-                'Principal', 'Senior Nurse', 'Creative Director', 'Director'
+                'Senior Developer', 'Marketing Manager', 'Operations Manager',
+                'Principal', 'Senior Nurse', 'Creative Director', 'Director',
             ]);
         } else {
             return $this->faker->randomElement([
-                'CTO', 'VP Marketing', 'CEO', 'Consultant', 'Professor', 
-                'Chief Nurse', 'Executive Director', 'Retired'
+                'CTO', 'VP Marketing', 'CEO', 'Consultant', 'Professor',
+                'Chief Nurse', 'Executive Director', 'Retired',
             ]);
         }
     }
@@ -113,7 +116,7 @@ class AdvancedNeo4jPersonFactory
     protected function getSalaryByOccupation(): string
     {
         $occupation = $this->state['occupation'] ?? 'Unknown';
-        
+
         if (str_contains(strtolower($occupation), 'ceo') || str_contains(strtolower($occupation), 'vp')) {
             return '$150,000 - $300,000+';
         } elseif (str_contains(strtolower($occupation), 'senior') || str_contains(strtolower($occupation), 'manager')) {
@@ -133,20 +136,20 @@ class AdvancedNeo4jPersonFactory
     protected function generateRealisticBio(int $age): string
     {
         $templates = [
-            "Passionate professional with {years} years of experience in {field}. Enjoys {hobby} and {activity}.",
-            "Creative individual focused on {field}. Has been working in the industry for {years} years. Loves {hobby}.",
-            "Experienced {role} with a background in {field}. Passionate about {interest} and {activity}.",
+            'Passionate professional with {years} years of experience in {field}. Enjoys {hobby} and {activity}.',
+            'Creative individual focused on {field}. Has been working in the industry for {years} years. Loves {hobby}.',
+            'Experienced {role} with a background in {field}. Passionate about {interest} and {activity}.',
         ];
 
         return str_replace([
-            '{years}', '{field}', '{hobby}', '{activity}', '{role}', '{interest}'
+            '{years}', '{field}', '{hobby}', '{activity}', '{role}', '{interest}',
         ], [
             max(1, $age - 22),
             $this->faker->randomElement(['technology', 'business', 'education', 'healthcare', 'finance']),
             $this->faker->randomElement(['reading', 'hiking', 'cooking', 'photography', 'music']),
             $this->faker->randomElement(['traveling', 'learning', 'volunteering', 'sports', 'art']),
             $this->faker->randomElement(['professional', 'leader', 'innovator', 'creator', 'mentor']),
-            $this->faker->randomElement(['innovation', 'teamwork', 'growth', 'excellence', 'creativity'])
+            $this->faker->randomElement(['innovation', 'teamwork', 'growth', 'excellence', 'creativity']),
         ], $this->faker->randomElement($templates));
     }
 
@@ -158,7 +161,7 @@ class AdvancedNeo4jPersonFactory
         $allInterests = [
             'Technology', 'Sports', 'Music', 'Art', 'Travel', 'Cooking', 'Reading',
             'Photography', 'Gaming', 'Fitness', 'Movies', 'Nature', 'Fashion',
-            'Science', 'History', 'Politics', 'Business', 'Entrepreneurship'
+            'Science', 'History', 'Politics', 'Business', 'Entrepreneurship',
         ];
 
         return $this->faker->randomElements($allInterests, $this->faker->numberBetween(2, 6));
@@ -171,12 +174,12 @@ class AdvancedNeo4jPersonFactory
     {
         $technicalSkills = [
             'JavaScript', 'Python', 'Java', 'PHP', 'React', 'Vue.js', 'Node.js',
-            'SQL', 'MongoDB', 'AWS', 'Docker', 'Git', 'API Development'
+            'SQL', 'MongoDB', 'AWS', 'Docker', 'Git', 'API Development',
         ];
 
         $softSkills = [
             'Leadership', 'Communication', 'Problem Solving', 'Teamwork',
-            'Project Management', 'Time Management', 'Critical Thinking'
+            'Project Management', 'Time Management', 'Critical Thinking',
         ];
 
         $skills = array_merge(
@@ -194,7 +197,7 @@ class AdvancedNeo4jPersonFactory
     {
         $platforms = ['LinkedIn', 'Twitter', 'GitHub', 'Instagram', 'Facebook'];
         $selectedPlatforms = $this->faker->randomElements($platforms, $this->faker->numberBetween(1, 3));
-        
+
         $profiles = [];
         foreach ($selectedPlatforms as $platform) {
             $profiles[strtolower($platform)] = $this->faker->url();
@@ -210,16 +213,16 @@ class AdvancedNeo4jPersonFactory
     {
         foreach ($this->validationRules as $field => $rules) {
             $value = $data[$field] ?? null;
-            
+
             foreach ($rules as $rule) {
                 if ($rule === 'required' && empty($value)) {
                     throw new \InvalidArgumentException("Field {$field} is required");
                 }
-                
-                if ($rule === 'email' && $value && !filter_var($value, FILTER_VALIDATE_EMAIL)) {
+
+                if ($rule === 'email' && $value && ! filter_var($value, FILTER_VALIDATE_EMAIL)) {
                     throw new \InvalidArgumentException("Field {$field} must be a valid email");
                 }
-                
+
                 if (str_starts_with($rule, 'min:')) {
                     $min = (int) substr($rule, 4);
                     if (is_string($value) && strlen($value) < $min) {
@@ -229,7 +232,7 @@ class AdvancedNeo4jPersonFactory
                         throw new \InvalidArgumentException("Field {$field} must be at least {$min}");
                     }
                 }
-                
+
                 if (str_starts_with($rule, 'max:')) {
                     $max = (int) substr($rule, 4);
                     if (is_string($value) && strlen($value) > $max) {
@@ -251,15 +254,15 @@ class AdvancedNeo4jPersonFactory
     public function create(array $attributes = []): array
     {
         $data = array_merge($this->definition(), $this->state, $attributes);
-        
+
         // Validate data
         $this->validate($data);
-        
+
         // Convert arrays to JSON strings for Neo4j storage
         $data['interests'] = json_encode($data['interests']);
         $data['skills'] = json_encode($data['skills']);
         $data['social_media'] = json_encode($data['social_media']);
-        
+
         $query = '
             CREATE (p:Person {
                 name: $name,
@@ -298,6 +301,7 @@ class AdvancedNeo4jPersonFactory
     public function count(int $count): self
     {
         $this->count = $count;
+
         return $this;
     }
 
@@ -328,26 +332,26 @@ class AdvancedNeo4jPersonFactory
         $occupations = [
             'tech' => [
                 'Software Engineer', 'Data Scientist', 'Product Manager', 'DevOps Engineer',
-                'UX Designer', 'Systems Architect', 'QA Engineer', 'Technical Writer'
+                'UX Designer', 'Systems Architect', 'QA Engineer', 'Technical Writer',
             ],
             'finance' => [
                 'Financial Analyst', 'Investment Banker', 'Accountant', 'Risk Manager',
-                'Portfolio Manager', 'Financial Advisor', 'Auditor', 'Compliance Officer'
+                'Portfolio Manager', 'Financial Advisor', 'Auditor', 'Compliance Officer',
             ],
             'healthcare' => [
                 'Doctor', 'Nurse', 'Pharmacist', 'Physical Therapist',
-                'Medical Technician', 'Healthcare Administrator', 'Surgeon', 'Therapist'
+                'Medical Technician', 'Healthcare Administrator', 'Surgeon', 'Therapist',
             ],
             'education' => [
                 'Teacher', 'Professor', 'Principal', 'Librarian',
-                'Education Administrator', 'Curriculum Developer', 'Tutor', 'Researcher'
-            ]
+                'Education Administrator', 'Curriculum Developer', 'Tutor', 'Researcher',
+            ],
         ];
 
         if (isset($occupations[$industry])) {
             return $this->state([
                 'occupation' => $this->faker->randomElement($occupations[$industry]),
-                'company' => $this->generateCompanyForIndustry($industry)
+                'company' => $this->generateCompanyForIndustry($industry),
             ]);
         }
 
@@ -363,13 +367,13 @@ class AdvancedNeo4jPersonFactory
             'tech' => ['Tech', 'Systems', 'Solutions', 'Labs', 'Digital', 'Software'],
             'finance' => ['Financial', 'Capital', 'Investments', 'Bank', 'Securities', 'Group'],
             'healthcare' => ['Medical Center', 'Hospital', 'Health Services', 'Clinic', 'Care', 'Medical Group'],
-            'education' => ['University', 'College', 'Academy', 'Institute', 'School', 'Learning Center']
+            'education' => ['University', 'College', 'Academy', 'Institute', 'School', 'Learning Center'],
         ];
 
         $prefix = $this->faker->company();
         $suffix = $this->faker->randomElement($suffixes[$industry] ?? ['Corp']);
-        
-        return $prefix . ' ' . $suffix;
+
+        return $prefix.' '.$suffix;
     }
 
     /**
@@ -378,6 +382,7 @@ class AdvancedNeo4jPersonFactory
     public function state(array $state): self
     {
         $this->state = array_merge($this->state, $state);
+
         return $this;
     }
 
@@ -390,6 +395,7 @@ class AdvancedNeo4jPersonFactory
         if (str_starts_with($method, 'with')) {
             $property = strtolower(substr($method, 4));
             $value = $arguments[0] ?? null;
+
             return $this->state([$property => $value]);
         }
 

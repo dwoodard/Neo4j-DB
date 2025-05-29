@@ -2,6 +2,9 @@
 
 namespace App\Providers;
 
+use App\Console\Commands\CreateCompanies;
+use App\Console\Commands\GraphModelDemo;
+use App\Console\Commands\TestGraphModel;
 use App\Services\Neo4jService;
 use Illuminate\Support\ServiceProvider;
 
@@ -22,6 +25,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                TestGraphModel::class,
+                GraphModelDemo::class,
+                CreateCompanies::class,
+            ]);
+        }
     }
 }

@@ -2,15 +2,18 @@
 
 namespace App\Services;
 
+use Database\Factories\AdvancedNeo4jPersonFactory;
 use Database\Factories\Neo4jPersonFactory;
 use Database\Factories\Neo4jRelationshipFactory;
-use Database\Factories\AdvancedNeo4jPersonFactory;
 
 class Neo4jFactoryService
 {
     protected $neo4j;
+
     protected $personFactory;
+
     protected $relationshipFactory;
+
     protected $advancedPersonFactory;
 
     public function __construct(Neo4jService $neo4j)
@@ -189,7 +192,7 @@ class Neo4jFactoryService
             $masters = $this->person()->withOccupation('Masters Student', 'University of Technology')->young()->create();
             $persons[] = $masters;
             $relationships[] = $this->relationship()->between($professor['id'], $masters['id'])->academic()->create();
-            
+
             // Some masters students work with PhD students
             if ($i < 3) {
                 $relationships[] = $this->relationship()->between($phdStudents[$i]['id'], $masters['id'])->academic()->create();
@@ -245,7 +248,7 @@ class Neo4jFactoryService
         for ($i = 0; $i < 8; $i++) {
             $developer = $this->advancedPersonFactory->industry('tech')->demographic('millennials')->create();
             $persons[] = $developer;
-            
+
             // Developers work with founders
             $relationships[] = $this->relationshipFactory->workRelationship($developer['id'], $founder1['id']);
             $relationships[] = $this->relationshipFactory->workRelationship($developer['id'], $founder2['id']);
@@ -255,7 +258,7 @@ class Neo4jFactoryService
         for ($i = 0; $i < 3; $i++) {
             $advisor = $this->advancedPersonFactory->industry('tech')->demographic('gen_x')->withOccupation('Startup Advisor')->create();
             $persons[] = $advisor;
-            
+
             // Advisors mentor founders
             $relationships[] = $this->relationshipFactory->mentorship($advisor['id'], $founder1['id']);
             $relationships[] = $this->relationshipFactory->mentorship($advisor['id'], $founder2['id']);
@@ -263,7 +266,7 @@ class Neo4jFactoryService
 
         // Founder relationships
         $relationships[] = $this->relationshipFactory->workRelationship($founder1['id'], $founder2['id']);
-        
+
         // Investor relationships
         $relationships[] = $this->relationshipFactory->workRelationship($investor1['id'], $founder1['id']);
         $relationships[] = $this->relationshipFactory->workRelationship($investor2['id'], $founder1['id']);
@@ -290,7 +293,7 @@ class Neo4jFactoryService
         for ($i = 0; $i < 6; $i++) {
             $professor = $this->advancedPersonFactory->industry('education')->demographic('gen_x')->withOccupation('Professor')->create();
             $persons[] = $professor;
-            
+
             // Professors report to dean
             $relationships[] = $this->relationshipFactory->workRelationship($professor['id'], $dean['id']);
         }
@@ -299,7 +302,7 @@ class Neo4jFactoryService
         for ($i = 0; $i < 12; $i++) {
             $gradStudent = $this->advancedPersonFactory->industry('education')->demographic('millennials')->withOccupation('Graduate Student')->create();
             $persons[] = $gradStudent;
-            
+
             // Random professor mentorship
             $professorId = $persons[rand(1, 6)]['id'];
             $relationships[] = $this->relationshipFactory->academic($professorId, $gradStudent['id']);
@@ -309,7 +312,7 @@ class Neo4jFactoryService
         for ($i = 0; $i < 20; $i++) {
             $undergrad = $this->advancedPersonFactory->industry('education')->demographic('gen_z')->withOccupation('Undergraduate Student')->create();
             $persons[] = $undergrad;
-            
+
             // Random professor relationships
             if (rand(1, 3) === 1) {
                 $professorId = $persons[rand(1, 6)]['id'];
@@ -322,7 +325,7 @@ class Neo4jFactoryService
         for ($i = 0; $i < 15; $i++) {
             $student1 = rand($studentStart, count($persons) - 1);
             $student2 = rand($studentStart, count($persons) - 1);
-            
+
             if ($student1 !== $student2) {
                 $relationships[] = $this->relationshipFactory->friendship($persons[$student1]['id'], $persons[$student2]['id']);
             }
@@ -351,14 +354,14 @@ class Neo4jFactoryService
             // Team coach
             $coach = $this->advancedPersonFactory->demographic('gen_x')->withOccupation('Head Coach')->create();
             $persons[] = $coach;
-            
+
             // Coach reports to commissioner
             $relationships[] = $this->relationshipFactory->workRelationship($coach['id'], $commissioner['id']);
 
             // Team captain
             $captain = $this->advancedPersonFactory->demographic('millennials')->withOccupation('Team Captain')->create();
             $persons[] = $captain;
-            
+
             // Captain works with coach
             $relationships[] = $this->relationshipFactory->workRelationship($captain['id'], $coach['id']);
 
@@ -366,11 +369,11 @@ class Neo4jFactoryService
             for ($i = 0; $i < 8; $i++) {
                 $player = $this->advancedPersonFactory->demographic('millennials')->withOccupation('Professional Athlete')->create();
                 $persons[] = $player;
-                
+
                 // Players work with coach and captain
                 $relationships[] = $this->relationshipFactory->workRelationship($player['id'], $coach['id']);
                 $relationships[] = $this->relationshipFactory->workRelationship($player['id'], $captain['id']);
-                
+
                 // Team friendships
                 if (rand(1, 3) === 1) {
                     $relationships[] = $this->relationshipFactory->friendship($player['id'], $captain['id']);
@@ -399,12 +402,12 @@ class Neo4jFactoryService
         // Regional VPs
         $regions = ['Americas', 'Europe', 'Asia-Pacific'];
         $regionalVPs = [];
-        
+
         foreach ($regions as $region) {
             $vp = $this->advancedPersonFactory->demographic('gen_x')->withOccupation("VP {$region}")->create();
             $persons[] = $vp;
             $regionalVPs[] = $vp;
-            
+
             // VPs report to CEO
             $relationships[] = $this->relationshipFactory->management($ceo['id'], $vp['id']);
         }
@@ -415,23 +418,23 @@ class Neo4jFactoryService
             for ($i = 0; $i < 3; $i++) {
                 $director = $this->advancedPersonFactory->demographic('millennials')->withOccupation('Regional Director')->create();
                 $persons[] = $director;
-                
+
                 // Directors report to VP
                 $relationships[] = $this->relationshipFactory->management($vp['id'], $director['id']);
-                
+
                 // Department managers
                 for ($j = 0; $j < 2; $j++) {
                     $manager = $this->advancedPersonFactory->demographic('millennials')->withOccupation('Manager')->create();
                     $persons[] = $manager;
-                    
+
                     // Managers report to director
                     $relationships[] = $this->relationshipFactory->management($director['id'], $manager['id']);
-                    
+
                     // Team members
                     for ($k = 0; $k < 4; $k++) {
                         $employee = $this->advancedPersonFactory->demographic('millennials')->create();
                         $persons[] = $employee;
-                        
+
                         // Employees report to manager
                         $relationships[] = $this->relationshipFactory->management($manager['id'], $employee['id']);
                     }
@@ -443,7 +446,7 @@ class Neo4jFactoryService
         for ($i = 0; $i < 10; $i++) {
             $person1 = rand(1, count($persons) - 1);
             $person2 = rand(1, count($persons) - 1);
-            
+
             if ($person1 !== $person2 && rand(1, 4) === 1) {
                 $relationships[] = $this->relationshipFactory->workRelationship($persons[$person1]['id'], $persons[$person2]['id']);
             }
@@ -470,12 +473,12 @@ class Neo4jFactoryService
         // Department heads
         $departments = ['Art Direction', 'Copywriting', 'Strategy', 'Account Management', 'Production'];
         $heads = [];
-        
+
         foreach ($departments as $dept) {
             $head = $this->advancedPersonFactory->demographic('gen_x')->withOccupation("{$dept} Head")->create();
             $persons[] = $head;
             $heads[] = $head;
-            
+
             // Heads report to creative director
             $relationships[] = $this->relationshipFactory->management($creativeDirector['id'], $head['id']);
         }
@@ -485,10 +488,10 @@ class Neo4jFactoryService
             for ($i = 0; $i < rand(3, 6); $i++) {
                 $teamMember = $this->advancedPersonFactory->demographic('millennials')->create();
                 $persons[] = $teamMember;
-                
+
                 // Team members report to head
                 $relationships[] = $this->relationshipFactory->management($head['id'], $teamMember['id']);
-                
+
                 // Creative collaboration relationships
                 if (rand(1, 3) === 1) {
                     $relationships[] = $this->relationshipFactory->workRelationship($teamMember['id'], $creativeDirector['id']);
@@ -500,7 +503,7 @@ class Neo4jFactoryService
         for ($i = 0; $i < 5; $i++) {
             $freelancer = $this->advancedPersonFactory->demographic('millennials')->withOccupation('Freelancer')->create();
             $persons[] = $freelancer;
-            
+
             // Freelancers work with random team members
             $randomPerson = rand(1, count($persons) - 6);
             $relationships[] = $this->relationshipFactory->workRelationship($freelancer['id'], $persons[$randomPerson]['id']);
@@ -528,23 +531,23 @@ class Neo4jFactoryService
         for ($i = 0; $i < 4; $i++) {
             $leader = $this->advancedPersonFactory->industry('education')->demographic('gen_x')->withOccupation('Research Group Leader')->create();
             $persons[] = $leader;
-            
+
             // Leaders report to director
             $relationships[] = $this->relationshipFactory->management($director['id'], $leader['id']);
-            
+
             // Senior researchers
             for ($j = 0; $j < 3; $j++) {
                 $senior = $this->advancedPersonFactory->industry('education')->demographic('millennials')->withOccupation('Senior Researcher')->create();
                 $persons[] = $senior;
-                
+
                 // Senior researchers work with leader
                 $relationships[] = $this->relationshipFactory->academic($leader['id'], $senior['id']);
-                
+
                 // Junior researchers
                 for ($k = 0; $k < 2; $k++) {
                     $junior = $this->advancedPersonFactory->industry('education')->demographic('gen_z')->withOccupation('Junior Researcher')->create();
                     $persons[] = $junior;
-                    
+
                     // Junior researchers work with senior
                     $relationships[] = $this->relationshipFactory->mentorship($senior['id'], $junior['id']);
                 }
@@ -555,7 +558,7 @@ class Neo4jFactoryService
         for ($i = 0; $i < 3; $i++) {
             $visitor = $this->advancedPersonFactory->industry('education')->withOccupation('Visiting Scholar')->create();
             $persons[] = $visitor;
-            
+
             // Visiting scholars collaborate with random researchers
             $randomResearcher = rand(1, count($persons) - 4);
             $relationships[] = $this->relationshipFactory->academic($visitor['id'], $persons[$randomResearcher]['id']);
@@ -574,7 +577,7 @@ class Neo4jFactoryService
     {
         $personCount = $this->neo4j->runQuery('MATCH (p:Person) RETURN count(p) as count')->first()->get('count');
         $relationshipCount = $this->neo4j->runQuery('MATCH ()-[r]->() RETURN count(r) as count')->first()->get('count');
-        
+
         $relationshipTypes = [];
         $typeResults = $this->neo4j->runQuery('MATCH ()-[r]->() RETURN type(r) as type, count(r) as count ORDER BY count DESC');
         foreach ($typeResults as $result) {

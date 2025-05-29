@@ -17,9 +17,9 @@ class Neo4jSeeder extends Seeder
 
         // Create persons
         $this->command->info('👤 Creating persons...');
-        
-        $personFactory = new Neo4jPersonFactory();
-        $relationshipFactory = new Neo4jRelationshipFactory();
+
+        $personFactory = new Neo4jPersonFactory;
+        $relationshipFactory = new Neo4jRelationshipFactory;
 
         // Create a diverse set of people
         $persons = [];

@@ -2,11 +2,10 @@
 
 namespace App\Services;
 
-use App\Services\Neo4jService;
-
 class Neo4jBatchService
 {
     protected $neo4j;
+
     protected $batchSize = 100;
 
     public function __construct(Neo4jService $neo4j)
@@ -20,6 +19,7 @@ class Neo4jBatchService
     public function setBatchSize(int $size): self
     {
         $this->batchSize = $size;
+
         return $this;
     }
 
@@ -34,7 +34,7 @@ class Neo4jBatchService
         foreach ($batches as $batch) {
             $params = [];
             $createClauses = [];
-            
+
             foreach ($batch as $index => $personData) {
                 $createClauses[] = "CREATE (p{$index}:Person {
                     name: \$name{$index},
@@ -48,17 +48,17 @@ class Neo4jBatchService
                     created_at: datetime(),
                     updated_at: datetime()
                 })";
-                
+
                 foreach ($personData as $key => $value) {
                     $params["{$key}{$index}"] = $value;
                 }
             }
 
-            $query = implode("\n", $createClauses) . "\nRETURN " . 
-                     implode(", ", array_map(fn($i) => "p{$i}", array_keys($batch)));
+            $query = implode("\n", $createClauses)."\nRETURN ".
+                     implode(', ', array_map(fn ($i) => "p{$i}", array_keys($batch)));
 
             $result = $this->neo4j->runQuery($query, $params);
-            
+
             foreach ($result->first()->values() as $person) {
                 $results[] = [
                     'id' => $person->getId(),
@@ -82,18 +82,18 @@ class Neo4jBatchService
             $params = [];
             $matchClauses = [];
             $createClauses = [];
-            
+
             foreach ($batch as $index => $relData) {
                 $matchClauses[] = "MATCH (p1_{$index}:Person), (p2_{$index}:Person) 
                                   WHERE ID(p1_{$index}) = \$person1_id{$index} AND ID(p2_{$index}) = \$person2_id{$index}";
-                
+
                 $createClauses[] = "CREATE (p1_{$index})-[r{$index}:{$relData['type']} {
                     strength: \$strength{$index},
                     since: \$since{$index},
                     notes: \$notes{$index},
                     created_at: datetime()
                 }]->(p2_{$index})";
-                
+
                 $params["person1_id{$index}"] = $relData['person1_id'];
                 $params["person2_id{$index}"] = $relData['person2_id'];
                 $params["strength{$index}"] = $relData['strength'] ?? 5;
@@ -101,12 +101,12 @@ class Neo4jBatchService
                 $params["notes{$index}"] = $relData['notes'] ?? null;
             }
 
-            $query = implode("\n", $matchClauses) . "\n" .
-                     implode("\n", $createClauses) . "\nRETURN " .
-                     implode(", ", array_map(fn($i) => "r{$i}", array_keys($batch)));
+            $query = implode("\n", $matchClauses)."\n".
+                     implode("\n", $createClauses)."\nRETURN ".
+                     implode(', ', array_map(fn ($i) => "r{$i}", array_keys($batch)));
 
             $result = $this->neo4j->runQuery($query, $params);
-            
+
             foreach ($result->first()->values() as $relationship) {
                 $results[] = [
                     'id' => $relationship->getId(),
@@ -126,13 +126,13 @@ class Neo4jBatchService
     {
         // Create all persons first
         $createdPersons = $this->createPersonsBatch($persons);
-        
+
         // Map old indices to new IDs
         $personIdMap = array_combine(
             array_keys($persons),
             array_column($createdPersons, 'id')
         );
-        
+
         // Update relationship data with actual IDs
         $relationshipsWithIds = array_map(function ($rel) use ($personIdMap) {
             return array_merge($rel, [
@@ -140,10 +140,10 @@ class Neo4jBatchService
                 'person2_id' => $personIdMap[$rel['person2_index']] ?? $rel['person2_id'],
             ]);
         }, $relationships);
-        
+
         // Create all relationships
         $createdRelationships = $this->createRelationshipsBatch($relationshipsWithIds);
-        
+
         return [
             'persons' => $createdPersons,
             'relationships' => $createdRelationships,
@@ -153,14 +153,14 @@ class Neo4jBatchService
     /**
      * Bulk delete nodes and relationships
      */
-    public function bulkDelete(string $nodeType = null): void
+    public function bulkDelete(?string $nodeType = null): void
     {
         if ($nodeType) {
             $query = "MATCH (n:{$nodeType}) DETACH DELETE n";
         } else {
-            $query = "MATCH (n) DETACH DELETE n";
+            $query = 'MATCH (n) DETACH DELETE n';
         }
-        
+
         $this->neo4j->runQuery($query);
     }
 

@@ -2,8 +2,6 @@
 
 namespace App\Services;
 
-use App\Services\Neo4jService;
-
 class Neo4jAnalyticsService
 {
     protected $neo4j;
@@ -23,16 +21,16 @@ class Neo4jAnalyticsService
         // Basic counts
         $stats['nodes'] = $this->getNodeCounts();
         $stats['relationships'] = $this->getRelationshipCounts();
-        
+
         // Network metrics
         $stats['network_metrics'] = $this->getNetworkMetrics();
-        
+
         // Demographics analysis
         $stats['demographics'] = $this->getDemographicsAnalysis();
-        
+
         // Connection patterns
         $stats['connection_patterns'] = $this->getConnectionPatterns();
-        
+
         return $stats;
     }
 
@@ -117,6 +115,7 @@ class Neo4jAnalyticsService
         ';
 
         $result = $this->neo4j->runQuery($query);
+
         return $result->first()->get('density') ?? 0.0;
     }
 
@@ -133,6 +132,7 @@ class Neo4jAnalyticsService
         ';
 
         $result = $this->neo4j->runQuery($query);
+
         return $result->first()->get('avgDegree') ?? 0.0;
     }
 
@@ -163,6 +163,7 @@ class Neo4jAnalyticsService
         ';
 
         $result = $this->neo4j->runQuery($query);
+
         return $result->first()->get('globalClustering') ?? 0.0;
     }
 
@@ -185,6 +186,7 @@ class Neo4jAnalyticsService
 
         try {
             $result = $this->neo4j->runQuery($query);
+
             return $result->first()->get('componentCount') ?? 0;
         } catch (\Exception $e) {
             // Fallback to simpler approach if advanced query fails
@@ -445,6 +447,7 @@ class Neo4jAnalyticsService
         ';
 
         $result = $this->neo4j->runQuery($query);
+
         return $result->first()->get('crossCompanyConnections') ?? 0;
     }
 
@@ -543,7 +546,7 @@ class Neo4jAnalyticsService
     public function generateReport(): array
     {
         $stats = $this->getNetworkStatistics();
-        
+
         return [
             'generated_at' => now()->toISOString(),
             'summary' => [
@@ -586,7 +589,7 @@ class Neo4jAnalyticsService
 
         // Demographics insights
         $ageGroups = $stats['demographics']['age_distribution'] ?? [];
-        if (!empty($ageGroups)) {
+        if (! empty($ageGroups)) {
             $dominantAge = array_keys($ageGroups, max($ageGroups))[0];
             $insights[] = "Most people are in the {$dominantAge} age group";
         }

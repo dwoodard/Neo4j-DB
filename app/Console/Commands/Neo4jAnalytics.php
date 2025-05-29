@@ -26,19 +26,20 @@ class Neo4jAnalytics extends Command
         switch ($action) {
             case 'report':
                 return $this->generateReport($analytics);
-            
+
             case 'performance':
                 return $this->runPerformanceTest($batch, $factory);
-            
+
             case 'optimize':
                 return $this->optimizeDatabase($batch);
-            
+
             case 'benchmark':
                 return $this->runBenchmark($batch, $factory);
-            
+
             default:
                 $this->error("Unknown action: {$action}");
                 $this->info('Available actions: report, performance, optimize, benchmark');
+
                 return 1;
         }
     }
@@ -59,11 +60,11 @@ class Neo4jAnalytics extends Command
                 case 'json':
                     $this->displayJsonReport($report);
                     break;
-                
+
                 case 'csv':
                     $this->displayCsvReport($report);
                     break;
-                
+
                 default:
                     $this->displayTableReport($report);
                     break;
@@ -77,6 +78,7 @@ class Neo4jAnalytics extends Command
 
         } catch (\Exception $e) {
             $this->error("Failed to generate report: {$e->getMessage()}");
+
             return 1;
         }
     }
@@ -166,7 +168,7 @@ class Neo4jAnalytics extends Command
     protected function displayCsvReport(array $report): void
     {
         $this->info('CSV format - Summary data:');
-        
+
         // Basic CSV output
         $csvData = [
             ['Metric', 'Value'],
@@ -187,13 +189,13 @@ class Neo4jAnalytics extends Command
     {
         $timestamp = now()->format('Y-m-d_H-i-s');
         $filename = "neo4j_analytics_report_{$timestamp}";
-        
+
         switch ($format) {
             case 'json':
                 $filepath = storage_path("app/reports/{$filename}.json");
                 file_put_contents($filepath, json_encode($report, JSON_PRETTY_PRINT));
                 break;
-            
+
             case 'csv':
                 $filepath = storage_path("app/reports/{$filename}.csv");
                 // Simplified CSV export
@@ -203,7 +205,7 @@ class Neo4jAnalytics extends Command
                 $csv .= "Network Density,{$report['summary']['network_density']}\n";
                 file_put_contents($filepath, $csv);
                 break;
-            
+
             default:
                 $filepath = storage_path("app/reports/{$filename}.txt");
                 file_put_contents($filepath, print_r($report, true));
@@ -212,7 +214,7 @@ class Neo4jAnalytics extends Command
 
         // Ensure directory exists
         $dir = dirname($filepath);
-        if (!is_dir($dir)) {
+        if (! is_dir($dir)) {
             mkdir($dir, 0755, true);
         }
 
@@ -230,7 +232,7 @@ class Neo4jAnalytics extends Command
 
         $tests = [
             '100 nodes batch creation',
-            '500 nodes batch creation', 
+            '500 nodes batch creation',
             '1000 nodes batch creation',
             '100 relationships batch creation',
             '500 relationships batch creation',
@@ -238,9 +240,9 @@ class Neo4jAnalytics extends Command
 
         foreach ($tests as $test) {
             $this->info("Testing: {$test}");
-            
+
             $startTime = microtime(true);
-            
+
             try {
                 switch ($test) {
                     case '100 nodes batch creation':
@@ -259,14 +261,14 @@ class Neo4jAnalytics extends Command
                         $this->createTestRelationships($batch, 500);
                         break;
                 }
-                
+
                 $duration = round((microtime(true) - $startTime) * 1000, 2);
                 $this->line("   ✅ Completed in {$duration}ms");
-                
+
             } catch (\Exception $e) {
                 $this->error("   ❌ Failed: {$e->getMessage()}");
             }
-            
+
             $this->line('');
         }
 
@@ -280,7 +282,7 @@ class Neo4jAnalytics extends Command
     {
         $faker = \Faker\Factory::create();
         $nodes = [];
-        
+
         for ($i = 0; $i < $count; $i++) {
             $nodes[] = [
                 'name' => $faker->name(),
@@ -293,9 +295,9 @@ class Neo4jAnalytics extends Command
                 'bio' => $faker->sentence(),
             ];
         }
-        
+
         $batch->createPersonsBatch($nodes);
-        
+
         // Clean up test data
         if ($count >= 500) {
             $batch->bulkDelete('TestPerson');
@@ -309,7 +311,7 @@ class Neo4jAnalytics extends Command
     {
         // This would need existing nodes to work properly
         // For now, just measure the time for a simpler operation
-        $this->line("   (Skipped - requires existing nodes)");
+        $this->line('   (Skipped - requires existing nodes)');
     }
 
     /**
@@ -324,18 +326,19 @@ class Neo4jAnalytics extends Command
             $this->info('Creating indexes...');
             $batch->createIndexes();
             $this->line('   ✅ Indexes created successfully');
-            
+
             $this->line('');
             $this->info('🎯 Optimization Complete!');
             $this->info('Recommendations:');
             $this->line('   • Indexes have been created for common queries');
             $this->line('   • Monitor query performance with PROFILE');
             $this->line('   • Consider adding more specific indexes for your use case');
-            
+
             return 0;
-            
+
         } catch (\Exception $e) {
             $this->error("Optimization failed: {$e->getMessage()}");
+
             return 1;
         }
     }
@@ -350,7 +353,7 @@ class Neo4jAnalytics extends Command
 
         // Individual vs batch creation comparison
         $this->info('📊 Comparing Individual vs Batch Creation');
-        
+
         // Individual creation
         $this->info('Testing individual node creation (10 nodes)...');
         $startTime = microtime(true);
