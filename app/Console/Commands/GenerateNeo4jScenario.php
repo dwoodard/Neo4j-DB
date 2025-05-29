@@ -7,7 +7,7 @@ use Illuminate\Console\Command;
 
 class GenerateNeo4jScenario extends Command
 {
-    protected $signature = 'neo4j:generate {scenario : The scenario to generate (small_company|family_tree|academic_network|social_circle)} {--fresh : Clear existing data first}';
+    protected $signature = 'neo4j:generate {scenario : The scenario to generate (small_company|family_tree|academic_network|social_circle|startup_ecosystem|university_campus|sports_league|multinational_corp|creative_agency|research_institute)} {--fresh : Clear existing data first}';
 
     protected $description = 'Generate specific Neo4j network scenarios using factories';
 
@@ -84,6 +84,48 @@ class GenerateNeo4jScenario extends Command
                 $this->line('      • Group of young friends');
                 $this->line('      • Dense friendship connections');
                 $this->line('      • Everyone knows everyone pattern');
+                break;
+                
+            case 'startup_ecosystem':
+                $this->line('   🚀 Startup Ecosystem:');
+                $this->line('      • Founders, investors, advisors');
+                $this->line('      • Development and business teams');
+                $this->line('      • Mentorship and funding relationships');
+                break;
+                
+            case 'university_campus':
+                $this->line('   🎓 University Campus:');
+                $this->line('      • Faculty, grad students, undergrads');
+                $this->line('      • Academic mentorship hierarchy');
+                $this->line('      • Student friendship networks');
+                break;
+                
+            case 'sports_league':
+                $this->line('   ⚽ Sports League:');
+                $this->line('      • Teams, coaches, players');
+                $this->line('      • League management structure');
+                $this->line('      • Team dynamics and rivalries');
+                break;
+                
+            case 'multinational_corp':
+                $this->line('   🌍 Multinational Corporation:');
+                $this->line('      • Global CEO, regional VPs');
+                $this->line('      • Multi-level management hierarchy');
+                $this->line('      • Cross-regional collaborations');
+                break;
+                
+            case 'creative_agency':
+                $this->line('   🎨 Creative Agency:');
+                $this->line('      • Creative teams, account managers');
+                $this->line('      • Project-based collaborations');
+                $this->line('      • Freelancer networks');
+                break;
+                
+            case 'research_institute':
+                $this->line('   🔬 Research Institute:');
+                $this->line('      • Research groups, visiting scholars');
+                $this->line('      • Academic collaboration networks');
+                $this->line('      • Mentorship hierarchies');
                 break;
         }
     }
