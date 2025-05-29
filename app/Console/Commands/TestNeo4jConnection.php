@@ -89,7 +89,7 @@ class TestNeo4jConnection extends Command
             $result = $neo4j->runQuery('RETURN "Hello from Neo4j!" as message, datetime() as timestamp');
             $record = $result->first();
             $this->info("Message: {$record->get('message')}");
-            
+
             // Handle Neo4j DateTime object
             $timestamp = $record->get('timestamp');
             if ($timestamp instanceof \Laudis\Neo4j\Types\DateTime) {

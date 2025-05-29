@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Services\Neo4jService;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class Neo4jController extends Controller
 {
@@ -24,11 +24,11 @@ class Neo4jController extends Controller
             // Get database info
             $result = $this->neo4j->runQuery('CALL dbms.components()');
             $dbInfo = $result->first();
-            
+
             // Count nodes
             $countResult = $this->neo4j->runQuery('MATCH (n) RETURN count(n) as nodeCount');
             $nodeCount = $countResult->first()->get('nodeCount');
-            
+
             return response()->json([
                 'status' => 'success',
                 'database' => [
@@ -41,7 +41,7 @@ class Neo4jController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -75,7 +75,7 @@ class Neo4jController extends Controller
             ]);
 
             $person = $result->first()->get('p');
-            
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Person created successfully',
@@ -83,12 +83,12 @@ class Neo4jController extends Controller
                     'id' => $person->getId(),
                     'labels' => $person->getLabels(),
                     'properties' => $person->getProperties(),
-                ]
+                ],
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -119,7 +119,7 @@ class Neo4jController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -139,7 +139,7 @@ class Neo4jController extends Controller
             $query = '
                 MATCH (p1:Person), (p2:Person)
                 WHERE ID(p1) = $person1_id AND ID(p2) = $person2_id
-                CREATE (p1)-[r:' . strtoupper($request->relationship_type) . ' {
+                CREATE (p1)-[r:'.strtoupper($request->relationship_type).' {
                     created_at: datetime()
                 }]->(p2)
                 RETURN p1, r, p2
@@ -153,7 +153,7 @@ class Neo4jController extends Controller
             if ($result->count() === 0) {
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'One or both persons not found'
+                    'message' => 'One or both persons not found',
                 ], 404);
             }
 
@@ -164,7 +164,7 @@ class Neo4jController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -195,7 +195,7 @@ class Neo4jController extends Controller
                 $p1Id = $person1->getId();
                 $p2Id = $person2->getId();
 
-                if (!in_array($p1Id, $nodeIds)) {
+                if (! in_array($p1Id, $nodeIds)) {
                     $nodes[] = [
                         'id' => $p1Id,
                         'label' => $person1->getProperty('name'),
@@ -204,7 +204,7 @@ class Neo4jController extends Controller
                     $nodeIds[] = $p1Id;
                 }
 
-                if (!in_array($p2Id, $nodeIds)) {
+                if (! in_array($p2Id, $nodeIds)) {
                     $nodes[] = [
                         'id' => $p2Id,
                         'label' => $person2->getProperty('name'),
@@ -233,7 +233,7 @@ class Neo4jController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }

@@ -2,12 +2,13 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Services\Neo4jService;
+use Illuminate\Console\Command;
 
 class Neo4jMaintenance extends Command
 {
     protected $signature = 'neo4j:maintenance {action : The maintenance action (stats|cleanup|reset)}';
+
     protected $description = 'Neo4j database maintenance operations';
 
     public function handle(Neo4jService $neo4j)
@@ -27,6 +28,7 @@ class Neo4jMaintenance extends Command
             default:
                 $this->error("Unknown action: {$action}");
                 $this->line('Available actions: stats, cleanup, reset');
+
                 return 1;
         }
 
@@ -50,7 +52,15 @@ class Neo4jMaintenance extends Command
             foreach ($nodeStats as $stat) {
                 $labels = $stat->get('labels');
                 $count = $stat->get('count');
-                $labelStr = empty($labels) ? '[No Label]' : implode(', ', $labels);
+
+                // Handle Neo4j CypherList type
+                if ($labels instanceof \Laudis\Neo4j\Types\CypherList) {
+                    $labelsArray = $labels->toArray();
+                    $labelStr = empty($labelsArray) ? '[No Label]' : implode(', ', $labelsArray);
+                } else {
+                    $labelStr = empty($labels) ? '[No Label]' : implode(', ', $labels);
+                }
+
                 $this->line("   {$labelStr}: {$count}");
             }
 
@@ -85,8 +95,9 @@ class Neo4jMaintenance extends Command
 
     private function cleanup(Neo4jService $neo4j)
     {
-        if (!$this->confirm('This will remove all orphaned nodes (nodes with no relationships). Continue?')) {
+        if (! $this->confirm('This will remove all orphaned nodes (nodes with no relationships). Continue?')) {
             $this->info('Cleanup cancelled.');
+
             return;
         }
 
@@ -110,13 +121,15 @@ class Neo4jMaintenance extends Command
 
     private function reset(Neo4jService $neo4j)
     {
-        if (!$this->confirm('⚠️  This will DELETE ALL DATA in the Neo4j database. Are you sure?')) {
+        if (! $this->confirm('⚠️  This will DELETE ALL DATA in the Neo4j database. Are you sure?')) {
             $this->info('Reset cancelled.');
+
             return;
         }
 
-        if (!$this->confirm('This action cannot be undone. Really delete everything?')) {
+        if (! $this->confirm('This action cannot be undone. Really delete everything?')) {
             $this->info('Reset cancelled.');
+
             return;
         }
 
@@ -125,10 +138,10 @@ class Neo4jMaintenance extends Command
         try {
             // Delete all relationships first
             $neo4j->runQuery('MATCH ()-[r]->() DELETE r');
-            
+
             // Then delete all nodes
             $result = $neo4j->runQuery('MATCH (n) DELETE n RETURN count(n) as deleted');
-            
+
             $this->info('✅ Database reset completed. All data has been deleted.');
 
         } catch (\Exception $e) {
