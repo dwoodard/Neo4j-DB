@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Console\Commands\AdvancedGraphModelTest;
 use App\Console\Commands\CreateBulkPeople;
 use App\Console\Commands\CreateCompanies;
+use App\Console\Commands\DatabaseStats;
 use App\Console\Commands\GraphModelDemo;
 use App\Console\Commands\TestGraphModel;
 use App\Services\Neo4jService;
@@ -34,6 +35,7 @@ class AppServiceProvider extends ServiceProvider
                 CreateCompanies::class,
                 AdvancedGraphModelTest::class,
                 CreateBulkPeople::class,
+                DatabaseStats::class,
             ]);
         }
     }
