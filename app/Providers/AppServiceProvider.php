@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Console\Commands\AdvancedGraphModelTest;
+use App\Console\Commands\CreateBulkPeople;
 use App\Console\Commands\CreateCompanies;
 use App\Console\Commands\GraphModelDemo;
 use App\Console\Commands\TestGraphModel;
@@ -30,6 +32,8 @@ class AppServiceProvider extends ServiceProvider
                 TestGraphModel::class,
                 GraphModelDemo::class,
                 CreateCompanies::class,
+                AdvancedGraphModelTest::class,
+                CreateBulkPeople::class,
             ]);
         }
     }
