@@ -7,6 +7,7 @@ use App\Console\Commands\CreateBulkPeople;
 use App\Console\Commands\CreateCompanies;
 use App\Console\Commands\DatabaseStats;
 use App\Console\Commands\GraphModelDemo;
+use App\Console\Commands\MakeGraphModelCommand;
 use App\Console\Commands\TestGraphModel;
 use App\Services\Neo4jService;
 use Illuminate\Support\ServiceProvider;
@@ -36,6 +37,7 @@ class AppServiceProvider extends ServiceProvider
                 AdvancedGraphModelTest::class,
                 CreateBulkPeople::class,
                 DatabaseStats::class,
+                MakeGraphModelCommand::class,
             ]);
         }
     }

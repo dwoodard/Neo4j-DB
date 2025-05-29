@@ -119,6 +119,50 @@
             font-family: 'Courier New', monospace;
             font-size: 12px;
         }
+        .stats-container {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            border: 1px solid #e2e8f0;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .type-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            margin: 4px 0;
+            background: #f7fafc;
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+        }
+        .type-label {
+            font-weight: 500;
+            color: #2d3748;
+        }
+        .type-count {
+            background: #667eea;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .summary-stats {
+            background: #edf2f7;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            color: #4a5568;
+        }
+        .error {
+            color: #e53e3e;
+            font-style: italic;
+            text-align: center;
+            padding: 20px;
+        }
     </style>
 </head>
 <body>
@@ -199,6 +243,25 @@
                 </form>
             </div>
 
+            <!-- Node Types & Statistics -->
+            <div class="section full-width">
+                <h3>📊 Node Types & Statistics</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div>
+                        <h4>🏷️ Node Types</h4>
+                        <div id="nodeTypesContainer" class="stats-container">
+                            <p>Loading node types...</p>
+                        </div>
+                    </div>
+                    <div>
+                        <h4>🔗 Relationship Types</h4>
+                        <div id="relationshipTypesContainer" class="stats-container">
+                            <p>Loading relationship types...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Network Visualization -->
             <div class="section full-width">
                 <h3>🌐 Network Graph</h3>
@@ -225,6 +288,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             log('Application initialized');
             loadStats();
+            loadNodeTypes();
             loadPersons();
             initNetwork();
         });
@@ -251,6 +315,75 @@
             } catch (error) {
                 log(`Error loading stats: ${error.message}`);
             }
+        }
+
+        // Load node types and relationship types
+        async function loadNodeTypes() {
+            try {
+                const response = await fetch('/api/neo4j/node-types');
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    displayNodeTypes(data.data);
+                    log(`Loaded ${data.data.uniqueNodeTypes} node types and ${data.data.uniqueRelationshipTypes} relationship types`);
+                } else {
+                    document.getElementById('nodeTypesContainer').innerHTML = '<p class="error">Failed to load node types</p>';
+                    document.getElementById('relationshipTypesContainer').innerHTML = '<p class="error">Failed to load relationship types</p>';
+                }
+            } catch (error) {
+                log(`Error loading node types: ${error.message}`);
+                document.getElementById('nodeTypesContainer').innerHTML = '<p class="error">Error loading data</p>';
+                document.getElementById('relationshipTypesContainer').innerHTML = '<p class="error">Error loading data</p>';
+            }
+        }
+
+        // Display node types and relationship types
+        function displayNodeTypes(data) {
+            // Display node types
+            const nodeTypesContainer = document.getElementById('nodeTypesContainer');
+            let nodeTypesHtml = `
+                <div class="summary-stats">
+                    📊 <strong>${data.uniqueNodeTypes}</strong> unique node types | 
+                    <strong>${data.totalNodes}</strong> total nodes
+                </div>
+            `;
+            
+            if (data.nodeTypes.length > 0) {
+                data.nodeTypes.forEach(nodeType => {
+                    nodeTypesHtml += `
+                        <div class="type-item">
+                            <span class="type-label">${nodeType.displayName}</span>
+                            <span class="type-count">${nodeType.count}</span>
+                        </div>
+                    `;
+                });
+            } else {
+                nodeTypesHtml += '<p>No node types found</p>';
+            }
+            nodeTypesContainer.innerHTML = nodeTypesHtml;
+
+            // Display relationship types
+            const relationshipTypesContainer = document.getElementById('relationshipTypesContainer');
+            let relationshipTypesHtml = `
+                <div class="summary-stats">
+                    🔗 <strong>${data.uniqueRelationshipTypes}</strong> unique relationship types | 
+                    <strong>${data.totalRelationships}</strong> total relationships
+                </div>
+            `;
+            
+            if (data.relationshipTypes.length > 0) {
+                data.relationshipTypes.forEach(relType => {
+                    relationshipTypesHtml += `
+                        <div class="type-item">
+                            <span class="type-label">${relType.displayName}</span>
+                            <span class="type-count">${relType.count}</span>
+                        </div>
+                    `;
+                });
+            } else {
+                relationshipTypesHtml += '<p>No relationship types found</p>';
+            }
+            relationshipTypesContainer.innerHTML = relationshipTypesHtml;
         }
 
         // Load persons for dropdowns
@@ -387,6 +520,7 @@
                     log(`Person created: ${formData.name}`);
                     this.reset();
                     loadStats();
+                    loadNodeTypes();
                     loadPersons();
                     refreshNetwork();
                 } else {
@@ -420,6 +554,7 @@
                     log(`Relationship created: ${formData.relationship_type}`);
                     this.reset();
                     loadStats();
+                    loadNodeTypes();
                     refreshNetwork();
                 } else {
                     log(`Error creating relationship: ${data.message}`);

@@ -51,7 +51,7 @@ class Neo4jAnalyticsService
         foreach ($result as $record) {
             $labels = $record->get('nodeType');
             $count = $record->get('count');
-            $labelKey = implode(':', $labels);
+            $labelKey = implode(':', $labels->toArray());
             $counts[$labelKey] = $count;
         }
 

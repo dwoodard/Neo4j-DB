@@ -15,4 +15,5 @@ Route::prefix('neo4j')->group(function () {
     Route::post('/persons', [Neo4jController::class, 'createPerson']);
     Route::post('/relationships', [Neo4jController::class, 'createRelationship']);
     Route::get('/network', [Neo4jController::class, 'getNetwork']);
+    Route::get('/node-types', [Neo4jController::class, 'getNodeTypes']);
 });

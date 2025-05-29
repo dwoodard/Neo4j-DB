@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\Neo4jAnalyticsService;
 use App\Services\Neo4jService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -10,9 +11,12 @@ class Neo4jController extends Controller
 {
     protected $neo4j;
 
-    public function __construct(Neo4jService $neo4j)
+    protected $analytics;
+
+    public function __construct(Neo4jService $neo4j, Neo4jAnalyticsService $analytics)
     {
         $this->neo4j = $neo4j;
+        $this->analytics = $analytics;
     }
 
     /**
@@ -228,6 +232,60 @@ class Neo4jController extends Controller
                 'network' => [
                     'nodes' => $nodes,
                     'relationships' => $relationships,
+                ],
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Get all node types with counts
+     */
+    public function getNodeTypes(): JsonResponse
+    {
+        try {
+            $nodeCounts = $this->analytics->getNodeCounts();
+            $relationshipCounts = $this->analytics->getRelationshipCounts();
+
+            // Format node types for better display
+            $nodeTypes = [];
+            foreach ($nodeCounts as $label => $count) {
+                $nodeTypes[] = [
+                    'label' => $label,
+                    'count' => $count,
+                    'displayName' => str_replace([':', '_'], [' & ', ' '], $label),
+                ];
+            }
+
+            // Sort by count (descending)
+            usort($nodeTypes, fn ($a, $b) => $b['count'] <=> $a['count']);
+
+            // Format relationship types
+            $relationshipTypes = [];
+            foreach ($relationshipCounts as $type => $count) {
+                $relationshipTypes[] = [
+                    'type' => $type,
+                    'count' => $count,
+                    'displayName' => str_replace('_', ' ', ucwords(strtolower($type), '_')),
+                ];
+            }
+
+            // Sort by count (descending)
+            usort($relationshipTypes, fn ($a, $b) => $b['count'] <=> $a['count']);
+
+            return response()->json([
+                'status' => 'success',
+                'data' => [
+                    'nodeTypes' => $nodeTypes,
+                    'relationshipTypes' => $relationshipTypes,
+                    'totalNodes' => array_sum($nodeCounts),
+                    'totalRelationships' => array_sum($relationshipCounts),
+                    'uniqueNodeTypes' => count($nodeTypes),
+                    'uniqueRelationshipTypes' => count($relationshipTypes),
                 ],
             ]);
         } catch (\Exception $e) {
